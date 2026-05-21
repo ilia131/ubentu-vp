@@ -1,5 +1,22 @@
 FROM ubuntu:22.04
 
-RUN apt update && apt install -y curl wget
+ENV DEBIAN_FRONTEND=noninteractive
 
-CMD ["sleep", "infinity"]
+RUN apt update && apt install -y curl unzip
+
+# نصب Xray
+RUN curl -L https://github.com/XTLS/Xray-core/releases/latest/download/Xray-linux-64.zip -o xray.zip \
+    && unzip xray.zip \
+    && mv xray /usr/local/bin/ \
+    && chmod +x /usr/local/bin/xray \
+    && rm -rf xray.zip *.dat
+
+# پوشه کانفیگ
+WORKDIR /etc/xray
+
+# کپی کانفیگ
+COPY config.json /etc/xray/config.json
+
+EXPOSE 10000
+
+CMD ["/usr/local/bin/xray","run","-config","/etc/xray/config.json"]
